@@ -1,9 +1,8 @@
 package tacos.web;
 
-import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -38,7 +37,7 @@ public class DesignTacoController {
 		Iterable<Ingredient> ingredients = ingredientRepo.findAll();
 		Type[] types = Ingredient.Type.values();
 		for (Type type : types) {
-			model.addAttribute(type.toString().toLowerCase(), filterByType((List<Ingredient>) ingredients, type));
+			model.addAttribute(type.toString().toLowerCase(), filterByType(ingredients, type));
 		}
 	}
 
@@ -68,7 +67,10 @@ public class DesignTacoController {
 		return "redirect:/orders/current";
 	}
 
-	private Iterable<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
-		return ingredients.stream().filter(x -> x.getType().equals(type)).collect(Collectors.toList());
-	}
+	private Iterable<Ingredient> filterByType(
+		      Iterable<Ingredient> ingredients, Type type) {
+		    return StreamSupport.stream(ingredients.spliterator(), false)
+		              .filter(i -> i.getType().equals(type))
+		              .collect(Collectors.toList());
+		  }
 }
